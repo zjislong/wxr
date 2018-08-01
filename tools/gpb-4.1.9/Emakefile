@@ -1,0 +1,12 @@
+{
+    ['src/gpb_codegen.erl'],
+    [verbose, {inline_size, 30}, {outdir, "ebin"}, {i, "include"}]
+}.
+{
+	['src/*'],
+	[verbose, {inline_size, 30}, {outdir, "ebin"}, {i, "include"}]
+}.
+{
+    ["descr_src/*"],
+    [verbose, {inline_size, 30}, {outdir, "ebin"}, {i, "include"}, {i,"descr_src"}]
+}.

@@ -1,0 +1,36 @@
+#!/usr/bin/env escript
+%% -*- mode: erlang -*-
+%%! -pa ebin deps/ebin
+%%%'     HEADER
+%% @author    ZhengJia <zj952067409@163.com>
+%% @copyright 2018 ZhengJia
+%% @doc         
+%% @end
+-export([main/1]).
+%%%.
+%%%'     PUBLIC API
+-spec main(Args :: list(string())) -> term().
+main(Args)->
+    Res = node_name(Args),
+    io:format("~s",[Res]),
+    halt(0).
+
+%%%.
+%%%'     PRIVATE FUNCTIONS
+%% @private
+node_name([ServerType])->
+    Conf = config:load_config("config/app.config"),
+    ServerNum = proplists:get_value(server_number,proplists:get_value(wxr, Conf)),
+    Host = misc:ipv4(),
+    NodeName = ServerType++"_"++integer_to_list(ServerNum)++"@"++Host,
+    NodeName;
+node_name(_)->
+    Conf = config:load_config("config/app.config"),
+    ServerType = proplists:get_value(server_type,proplists:get_value(wxr, Conf)),
+    ServerNum = proplists:get_value(server_number,proplists:get_value(wxr, Conf)),
+    Host = misc:ipv4(),
+    NodeName = atom_to_list(ServerType)++"_"++integer_to_list(ServerNum)++"@"++Host,
+    NodeName.
+
+%%%.
+%%% vim: set filetype=erlang tabstop=2 foldmarker=%%%',%%%. foldmethod=marker:

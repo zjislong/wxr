@@ -1,0 +1,48 @@
+2018-05-21 01:30:33.521 [error] <0.4143.0> Connection Id 65540 closing with reason: tcp_closed
+2018-05-21 01:30:33.521 [error] <0.4143.0> gen_server <0.4143.0> terminated with reason: tcp_closed
+2018-05-21 01:30:33.521 [error] <0.4143.0> CRASH REPORT Process <0.4143.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 01:30:33.521 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.4143.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 01:30:33.609 [error] <0.4144.0> Connection Id 65541 closing with reason: tcp_closed
+2018-05-21 01:30:33.609 [error] <0.4144.0> gen_server <0.4144.0> terminated with reason: tcp_closed
+2018-05-21 01:30:33.609 [error] <0.4144.0> CRASH REPORT Process <0.4144.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 01:30:33.609 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.4144.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 01:31:14.485 [error] <0.4149.0> Connection Id 65542 closing with reason: tcp_closed
+2018-05-21 01:31:14.485 [error] <0.4149.0> gen_server <0.4149.0> terminated with reason: tcp_closed
+2018-05-21 01:31:14.485 [error] <0.4149.0> CRASH REPORT Process <0.4149.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 01:31:14.485 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.4149.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 01:31:40.283 [error] <0.4151.0> Connection Id 65543 closing with reason: tcp_closed
+2018-05-21 01:31:40.283 [error] <0.4151.0> gen_server <0.4151.0> terminated with reason: tcp_closed
+2018-05-21 01:31:40.283 [error] <0.4151.0> CRASH REPORT Process <0.4151.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 01:31:40.283 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.4151.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 09:30:39.508 [error] <0.6307.0> Connection Id 65932 closing with reason: tcp_closed
+2018-05-21 09:30:39.508 [error] <0.6307.0> gen_server <0.6307.0> terminated with reason: tcp_closed
+2018-05-21 09:30:39.508 [error] <0.6307.0> CRASH REPORT Process <0.6307.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 09:30:39.509 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.6307.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 09:30:39.599 [error] <0.6308.0> Connection Id 65933 closing with reason: tcp_closed
+2018-05-21 09:30:39.599 [error] <0.6308.0> gen_server <0.6308.0> terminated with reason: tcp_closed
+2018-05-21 09:30:39.599 [error] <0.6308.0> CRASH REPORT Process <0.6308.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 09:30:39.599 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.6308.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 09:31:20.470 [error] <0.6312.0> Connection Id 65934 closing with reason: tcp_closed
+2018-05-21 09:31:20.470 [error] <0.6312.0> gen_server <0.6312.0> terminated with reason: tcp_closed
+2018-05-21 09:31:20.470 [error] <0.6312.0> CRASH REPORT Process <0.6312.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 09:31:20.470 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.6312.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 09:31:46.271 [error] <0.6314.0> Connection Id 65935 closing with reason: tcp_closed
+2018-05-21 09:31:46.271 [error] <0.6314.0> gen_server <0.6314.0> terminated with reason: tcp_closed
+2018-05-21 09:31:46.271 [error] <0.6314.0> CRASH REPORT Process <0.6314.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 09:31:46.271 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.6314.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 17:30:45.496 [error] <0.8471.0> Connection Id 66323 closing with reason: tcp_closed
+2018-05-21 17:30:45.496 [error] <0.8471.0> gen_server <0.8471.0> terminated with reason: tcp_closed
+2018-05-21 17:30:45.496 [error] <0.8471.0> CRASH REPORT Process <0.8471.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 17:30:45.497 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.8471.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 17:30:45.583 [error] <0.8472.0> Connection Id 66324 closing with reason: tcp_closed
+2018-05-21 17:30:45.583 [error] <0.8472.0> gen_server <0.8472.0> terminated with reason: tcp_closed
+2018-05-21 17:30:45.583 [error] <0.8472.0> CRASH REPORT Process <0.8472.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 17:30:45.583 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.8472.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 17:31:26.455 [error] <0.8476.0> Connection Id 66325 closing with reason: tcp_closed
+2018-05-21 17:31:26.455 [error] <0.8476.0> gen_server <0.8476.0> terminated with reason: tcp_closed
+2018-05-21 17:31:26.455 [error] <0.8476.0> CRASH REPORT Process <0.8476.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 17:31:26.456 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.8476.0> exit with reason tcp_closed in context child_terminated
+2018-05-21 17:31:52.257 [error] <0.8478.0> Connection Id 66326 closing with reason: tcp_closed
+2018-05-21 17:31:52.257 [error] <0.8478.0> gen_server <0.8478.0> terminated with reason: tcp_closed
+2018-05-21 17:31:52.257 [error] <0.8478.0> CRASH REPORT Process <0.8478.0> with 0 neighbours exited with reason: tcp_closed in gen_server:handle_common_reply/8 line 726
+2018-05-21 17:31:52.257 [error] <0.145.0> Supervisor {<0.145.0>,poolboy_sup} had child mysql started with {mysql,start_link,undefined} at <0.8478.0> exit with reason tcp_closed in context child_terminated

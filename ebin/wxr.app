@@ -1,0 +1,22 @@
+{application, wxr,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, { wxr_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    sasl,
+    inets,
+    cowboy,
+    lager,
+    mysql_poolboy,
+    lbm_kv,
+    node_pool
+   ]},
+  {env,[]},
+  {modules, []},
+  {maintainers, []},
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.

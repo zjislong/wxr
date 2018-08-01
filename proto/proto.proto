@@ -1,0 +1,294 @@
+//syntax = "proto3";
+enum msgID {
+    none = 0;
+	//登陆和主界面
+    c_get_player_id = 1001;
+    s_get_player_id = 1002;
+	c_login = 1003;
+	s_login = 1004;
+	s_globle_goal = 1005;
+	c_heart = 1006;
+	s_heart = 1007;
+	c_finish_cg = 1008;
+	c_finish_tip = 1009;
+	//主角
+	c_player_info = 1101;
+	s_player_info = 1102;
+	c_buy_pi_fu = 1103;
+	s_buy_pi_fu = 1104;
+	c_change_pi_fu = 1105;
+	s_change_pi_fu = 1106;
+	c_goal_reward = 1107;
+	s_goal_reward = 1108;
+	c_get_goal_reward = 1109;
+	s_get_goal_reward = 1110;
+	//单人模式
+	c_single_game = 1201;
+	s_single_game = 1202;
+	c_single_game_end = 1203;
+	s_single_game_end = 1204;
+	c_single_game_tip = 1205;
+	//排行榜
+	c_rank_info = 1301;
+	s_rank_info = 1302;
+	//多人模式
+	c_friend_battle_invite = 1401;
+    s_friend_battle_invite = 1402;
+    c_match_battle = 1403;
+    s_battle_start = 1404;
+    c_catch_mark = 1405;
+    c_miss_mark = 1406;
+    c_use_skill = 1407;
+    s_use_skill = 1408;
+    s_score_change = 1409;
+    s_hp_change = 1410;
+    s_battle_end = 1411;
+    c_battle_info = 1412;
+    s_battle_info = 1413;
+}
+
+//===============================结构定义============================================
+message p_rank {
+    required string key = 1;            //key 省名或者市名或者玩家id
+    required uint32 value = 2;          //积分
+    required uint32 rank = 3;           //排名
+    required uint32 title = 4;          //称号 只有key是玩家时有效
+    required string name = 5;           //昵称
+    required string head = 6;           //头像
+    required string gender = 7;         //性别
+}
+
+message p_star_info {
+    required uint32 star_lv = 1;        //段位等级
+    required uint32 count = 2;          //人数
+}
+
+//===============================登陆和主界面=========================================
+//1001 获取player_id
+message c_get_player_id {
+    required string code = 1;         //登陆code
+}
+
+//1002 返回player_id
+message s_get_player_id {
+    required string player_id = 1;    //玩家id
+}
+
+//1003 登陆
+message c_login {
+    required string player_id = 1;    //玩家id
+    required string name = 2;         //昵称
+    required string head = 3;         //头像
+    required string gender = 4;       //性别
+    required string city = 5;         //市
+    required string province = 6;     //省
+    required string country = 7;      //国
+}
+
+//1004 登陆返回
+message s_login {
+    required string player_id = 1;    //玩家id
+    required uint32 is_load_cg = 2;    //是否播放开场动画0播放1不播放
+    required uint32 is_load_tip = 3;   //是否播放新手提示0播放1不播放
+}
+
+//1005 主界面大目标推送
+message s_globle_goal {
+    required uint32 save_total = 1;     //已经解救人类数量
+    required uint32 need_save = 2;      //需要解决人类数量
+}
+
+//1006 心跳请求
+message c_heart {
+}
+
+//1007 心跳返回
+message s_heart {
+}
+
+//1008 播放完开场动画
+message c_finish_cg {
+}
+
+//1009 播放完新手提示
+message c_finish_tip {
+}
+//===============================主角=========================================
+//1101 主角
+message c_player_info {
+}
+
+//1102 主角返回
+message s_player_info {
+    required uint32 total_exp = 1;      //总获得的经验
+    required uint32 cur_pi_fu = 2;      //当前选择的皮肤
+    repeated uint32 have_pi_fu = 3;     //当前拥有的皮肤
+    repeated uint32 skills = 4;         //当前可使用的技能
+    required uint32 gold = 5;           //金币
+}
+
+//1103 购买皮肤
+message c_buy_pi_fu {
+    required uint32 pi_fu = 1;           //要购买的皮肤
+}
+
+//1104 购买皮肤结果
+message s_buy_pi_fu {
+    required uint32 pi_fu = 1;           //要购买的皮肤
+    required uint32 result = 2;          //结果0失败1成功
+}
+
+//1105 切换皮肤
+message c_change_pi_fu {
+    required uint32 pi_fu = 1;           //要激活的皮肤
+}
+
+//1106 切换皮肤结果
+message s_change_pi_fu {
+    required uint32 pi_fu = 1;           //要激活的皮肤
+    required uint32 result = 2;          //结果0失败1成功
+}
+
+//1107 协同目标
+message c_goal_reward {
+}
+
+//1108 协同目标返回
+message s_goal_reward {
+    repeated uint32 can_reward = 1;     //达成条件的目标
+    repeated uint32 geted_reward = 2;   //领取过了的目标
+}
+
+//1109 领取协同目标奖励
+message c_get_goal_reward {
+    required uint32 reward_id = 1;      //目标ID
+}
+
+//1110 领取协同目标奖励返回
+message s_get_goal_reward {
+    required uint32 reward_id = 1;      //目标ID
+    required uint32 result = 2;         //结果0失败1成功
+}
+
+//===============================单人模式=========================================
+//1201 进入单人模式
+message c_single_game {
+}
+
+//1202 进入单人模式返回
+message s_single_game {
+    required uint32 stage = 1;           //单人模式阶段1解救人类2对抗外星人
+    required uint32 skill = 2;           //随机到的技能
+    required uint32 is_load_tip = 3;     //是否播放新手提示0播放1不播放
+    required uint32 cur_pi_fu = 4;       //当前选择的皮肤
+}
+
+//1203 结算
+message c_single_game_end {
+    required uint32 score = 1;          //本次获得的积分
+    required uint32 exp = 2;            //本次获得的经验
+    required uint32 gold = 3;           //本次获得的金币
+}
+
+//1204 结算返回
+message s_single_game_end {
+    required uint32 result = 1;          //数据是否合法0不合法1合法
+    required uint32 is_first = 2;        //是否是第一次结算
+    required uint32 total_score = 3;     //总获得的积分
+    required uint32 total_exp = 4;       //总获得的经验
+    //repeated xxxx rank = 6;            //排行
+}
+
+//1205 播放完新手提示
+message c_single_game_tip {
+}
+
+//=============================排行榜========================================
+//1301 请求排行榜
+message c_rank_info {
+    required string tag = 1;            //排行榜标签
+    required uint32 rank = 2;           //起点排名 返回数据是该排名到之后的10名的排行榜数据
+}
+
+//1302 排行榜返回
+message s_rank_info {
+    required string tag = 1;            //排行榜标签
+    repeated p_rank rank_info = 2;      //排行数据
+}
+
+//===========================多人模式=========================================
+//1401 邀请好友对战
+message c_friend_battle_invite {
+}
+
+//1402 邀请好友对战返回
+message s_friend_battle_invite {
+    required uint32 result = 1;         //结果0失败1成功
+    required uint32 invite_code = 2;    //邀请码
+}
+
+//1403 匹配对战
+message c_match_battle {
+}
+
+//1404 对战开始
+message s_battle_start {
+    required string target_id = 1;      //对手id
+    required uint32 target_star = 2;    //对手段位
+    required uint32 hp = 3;             //双方初始血量
+    required string target_name = 4;    //对手昵称
+    required string target_head = 5;    //对手头像
+    required string target_gender = 6;  //对手性别
+}
+
+//1405 消除符号
+message c_catch_mark {
+    required uint32 combo = 1;          //连消几个
+    required uint32 big_skill = 2;      //是否触发大招0没有1触发了
+}
+
+//1406 符号到底
+message c_miss_mark {
+}
+
+//1407 使用技能
+message c_use_skill {
+    required uint32 skill = 1;          //技能
+}
+
+//1408 技能生效
+message s_use_skill {
+    required string id = 1;             //技能目标id
+    required uint32 skill = 2;          //技能
+}
+
+//1409 积分变化
+message s_score_change {
+    required uint32 score = 1;          //积分
+}
+
+//1410 血量变化
+message s_hp_change {
+    required string id = 1;             //玩家id
+    required uint32 hp = 2;             //血量
+}
+
+//1411 对战结算
+message s_battle_end {
+    required uint32 battle_result = 1;  //对战结果0失败1成功
+    required uint32 star = 2;           //新的段位
+}
+
+//1412 多人模式阶段和时间
+message c_battle_info {
+}
+
+//1413 多人模式阶段和时间
+message s_battle_info {
+    required uint32 status = 1;         //阶段0匹配阶段1等待结算阶段2结算阶段
+    required uint32 time = 2;           //结束时间戳
+    required uint32 fight_count = 3;    //匹配次数
+    required uint32 add_second = 4;     //次数需要秒
+    repeated p_star_info info = 5;      //段位信息
+    required uint32 match_second = 6;   //已经匹配秒0表示没有进行匹配
+}
