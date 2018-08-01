@@ -70,19 +70,22 @@ start_link(ServerType, ServerVar) ->
     {stop, Reason :: term()} | ignore).
 
 init([main, ServerVar])->
+    process_flag(trap_exit, true),
     start_web(player_handler, ServerVar),
     node_pool:new_pool(player),
     node_pool:new_pool(game),
-    cache:init(),
+    public_data:init(),
     lbm_kv:create(player),
     erlang:send_after(30000,self(),loop),
     {ok, #state{server_type=main, connected_main_server = 1}};
 init([player, _])->
+    process_flag(trap_exit, true),
     connect_main_server(infinity),
     join_pool(player),
     erlang:send_after(30000,self(),loop),
     {ok, #state{server_type = player, connected_main_server = 1}};
 init([game, _]) ->
+    process_flag(trap_exit, true),
     ets:new(?ETS_RANK_SRV, [{keypos, #rank_srv.tag}, public, set, named_table]),
     connect_main_server(infinity),
     join_pool(game),
@@ -157,10 +160,15 @@ handle_info(Info, State) ->
 %%--------------------------------------------------------------------
 -spec(terminate(Reason :: (normal | shutdown | {shutdown, term()} | term()),
     State :: #state{}) -> term()).
-terminate(_Reason, _State) ->
+terminate(_Reason, State) ->
     lager:info("~p terminate", [?MODULE]),
-    cache:save(),
-    ok.
+    case State#state.server_type of
+        main ->
+            public_data:save(),
+            ok;
+        _->
+            ok
+    end.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -198,7 +206,8 @@ do_handle_info(loop, State) ->
 %%与main_server断开了
 do_handle_info({nodedown, _}, State) ->
     {noreply, State#state{connected_main_server = 0}};
-do_handle_info(_Info, State) ->
+do_handle_info(Info, State) ->
+    lager:info("~p recv unknown info ~p~n", [?MODULE, Info]),
     {noreply, State}.
 
 %%启动cowboy
@@ -211,9 +220,9 @@ start_web(Handler, Var) ->
     Port = proplists:get_value(port, Var),
     {ok, _} = cowboy:start_tls(wxr_https, [
         {port, Port},
-        {cacertfile, "priv/ssl/root_bundle.crt"},
-        {certfile, "priv/ssl/bltech.cn.crt"},
-        {keyfile, "priv/ssl/bltech.cn.key"}
+        {cacertfile, "priv/ssl/1_root_bundle.crt"},
+        {certfile, "priv/ssl/2_vxwxrs1.yeahyou.cn.crt"},
+        {keyfile, "priv/ssl/3_vxwxrs1.yeahyou.cn.key"}
     ], #{env => #{dispatch => Dispatch}}).
 
 %%连接main_server
@@ -226,7 +235,7 @@ connect_main_server(Count)->
     connect_main_server(MainServer, Count).
 
 connect_main_server(_MainServer, 0) -> false;
-connect_main_server(MainServer, infinity) -> 
+connect_main_server(MainServer, infinity) ->
     case net_adm:ping(MainServer) of
         pong ->
             erlang:monitor_node(MainServer, true),

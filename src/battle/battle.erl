@@ -20,7 +20,8 @@
     c_catch_mark/2,
     c_miss_mark/2,
     c_use_skill/2,
-    c_battle_info/2]).
+    c_battle_info/2,
+    c_cancel_match/2]).
 
 c_friend_battle_invite(#c_friend_battle_invite{}, PlayerID) ->
     gen_server:cast({global, battle_master_srv}, {join_match, PlayerID, PlayerID}),
@@ -29,9 +30,10 @@ c_match_battle(#c_match_battle{}, PlayerID) ->
     Player = player_lib:get_player(PlayerID),
     {StarLv, _} = battle_lib:star(Player#player.star),
     gen_server:cast({global, battle_master_srv}, {join_match, Player#player.player_id, StarLv}),
+    Max = data_battle:max_fight_count(),
     case Player#player.fight_count of
-        10 ->
-            {ok, [], Player#player{fight_count = 9, fight_count_time = misc:unixtime() + data_battle:fight_time_add_cd()}};
+        Max ->
+            {ok, [], Player#player{fight_count = Max - 1, fight_count_time = misc:unixtime() + data_battle:fight_time_add_cd()}};
         Count ->
             {ok, [], Player#player{fight_count = Count - 1}}
     end.
@@ -64,4 +66,14 @@ c_use_skill(#c_use_skill{skill = Skill}, PlayerID) ->
     {ok, []}.
 c_battle_info(#c_battle_info{}, PlayerID) ->
     gen_server:cast({global, battle_master_srv}, {send_battle_info, PlayerID}),
+    {ok, []}.
+c_cancel_match(_, PlayerID) ->
+    gen_server:cast({global, battle_master_srv}, {cancel_match, PlayerID}),
+    Player = player_lib:get_player(PlayerID),
+    case is_pid(Player#player.battle_srv) of
+        true ->
+            gen_server:cast(Player#player.battle_srv, {give_up, PlayerID});
+        false ->
+            skip
+    end,
     {ok, []}.

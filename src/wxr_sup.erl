@@ -51,7 +51,9 @@ init([]) ->
                 %%定时器
                 #{id => timer_srv, start => {timer_srv, start_link, []}},
                 %%玩家
-                #{id => player_sup, start => {player_sup, start_link, []}, type => supervisor}
+                #{id => player_sup, start => {player_sup, start_link, []}, type => supervisor},
+                %%战斗
+                #{id => battle_sup, start => {battle_sup, start_link, []}, type => supervisor}
             ];
         game ->
             [
@@ -62,9 +64,7 @@ init([]) ->
                 %%排行榜监控树
                 #{id => rank_sup, start => {rank_sup, start_link, []}, type => supervisor},
                 %%战斗匹配
-                #{id => battle_master_srv, start => {battle_master_srv, start_link, []}},
-                %%战斗
-                #{id => battle_sup, start => {battle_sup, start_link, []}, type => supervisor}
+                #{id => battle_master_srv, start => {battle_master_srv, start_link, []}}
             ]
     end,
     {ok, {{one_for_one, 1000, 3600}, Child}}.

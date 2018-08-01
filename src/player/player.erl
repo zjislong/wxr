@@ -27,20 +27,14 @@ c_player_info(#c_player_info{}, PlayerID) ->
 
 c_buy_pi_fu(#c_buy_pi_fu{pi_fu = PiFu}, PlayerID) ->
     Player = player_lib:get_player(PlayerID),
-    case lists:member(PiFu, Player#player.pi_fu) of
-        true ->
+    case player_pi_fu_lib:check_buy(Player, PiFu) of
+        {error, _} ->
             {ok, [#s_buy_pi_fu{pi_fu = PiFu, result = 0}]};
-        false ->
-            NeedGold = data_pi_fu:buy_cost(PiFu),
-            case player_money_lib:check_deduct(Player, NeedGold) of
-                ok ->
-                    Player2 = player_money_lib:deduct(Player, NeedGold, ?OPTION_BUY_PIFU, PiFu),
-                    Player3 = Player2#player{pi_fu = [PiFu | Player#player.pi_fu]},
-                    Msg = player_lib:s_player_info(Player3),
-                    {ok, [Msg, #s_buy_pi_fu{pi_fu = PiFu, result = 1}], Player3};
-                error ->
-                    {ok, [#s_buy_pi_fu{pi_fu = PiFu, result = 0}]}
-            end
+        {ok, NeedGold} ->
+            Player2 = player_money_lib:deduct(Player, NeedGold, ?OPTION_BUY_PIFU, PiFu),
+            Player3 = Player2#player{pi_fu = [PiFu | Player#player.pi_fu]},
+            Msg = player_lib:s_player_info(Player3),
+            {ok, [Msg, #s_buy_pi_fu{pi_fu = PiFu, result = 1}], Player3}
     end.
 
 c_change_pi_fu(#c_change_pi_fu{pi_fu = PiFu}, PlayerID) ->

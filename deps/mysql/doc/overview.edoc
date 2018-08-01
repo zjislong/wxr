@@ -1,0 +1,131 @@
+MySQL/OTP – MySQL client library for Erlang/OTP
+Copyright (C) 2014 Viktor Söderqvist
+
+This file is part of MySQL/OTP.
+
+MySQL/OTP is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+------------------------------------------------------------------------
+
+@title MySQL/OTP User's Guide
+@doc
+MySQL/OTP is a driver for connecting Erlang/OTP applications to MySQL
+databases. It is a native implementation of the MySQL protocol in Erlang.
+
+This is the documentation generated from the Erlang source code using EDoc.
+The project page is on Github:
+<a href="https://github.com/mysql-otp/mysql-otp/"
+   target="_top">https://github.com/mysql-otp/mysql-otp/</a>.
+
+For the reference manual see the <a href="mysql.html">mysql</a> module.
+
+<h2 id="value-representation">Value representation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>MySQL</th>
+      <th>Erlang</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>INT, TINYINT, etc.</td>
+      <td>`integer()'</td>
+      <td>`42'</td>
+    </tr>
+    <tr>
+      <td>VARCHAR, TEXT, etc.</td>
+      <td>`unicode:chardata()' [<a href="#vn1">1</a>]</td>
+      <td>`<<"foo">>', `"bar"'</td>
+    </tr>
+    <tr>
+      <td>VARBINARY, BLOB, etc.</td>
+      <td>`binary()'</td>
+      <td>`<<1, 2, 3, 4>>'</td>
+    </tr>
+    <tr>
+      <td>BIT(N)</td>
+      <td>`<<_:N/bitstring>>'</td>
+      <td>`<<255, 6:3>>'</td>
+    </tr>
+    <tr>
+      <td>FLOAT, DOUBLE</td>
+      <td>`float()'</td>
+      <td>`3.14'</td>
+    </tr>
+    <tr>
+      <td>DECIMAL(P, S)</td>
+      <td>`integer()' when S == 0<br />
+          `float()' when P =&lt; 15 and S &gt; 0<br />
+          `binary()' when P &gt;= 16 and S &gt; 0 [<a href="#vn2">2</a>]</td>
+      <td>`42'<br />`3.14'<br />`<<"3.14159265358979323846">>'</td>
+    </tr>
+    <tr>
+      <td>DATETIME, TIMESTAMP</td>
+      <td>`calendar:datetime()' [<a href="#vn3">3</a>]</td>
+      <td>`{{2014, 11, 18}, {10, 22, 36}}'</td>
+    </tr>
+    <tr>
+      <td>DATE</td>
+      <td>`calendar:date()'</td>
+      <td>`{2014, 11, 18}'</td>
+    </tr>
+    <tr>
+      <td>TIME</td>
+      <td>`{Days, calendar:time()}' [<a href="#vn3">3</a>,
+          <a href="#vn4">4</a>]</td>
+      <td>`{0, {10, 22, 36}}'</td>
+    </tr>
+    <tr>
+      <td>NULL</td>
+      <td>`null'</td>
+      <td>`null'</td>
+    </tr>
+  </tbody>
+</table>
+
+Notes:
+
+<ol>
+  <li id="vn1">When fetching VARCHAR, TEXT etc. they are returned as `binary()'.
+    When sending (insert or update) any `unicode:chardata()' is accepted as
+    input. In a (possibly deep) list of integers and binaries, the integers are
+    treated as Unicode codepoints while binaries are treated as UTF-8 encoded
+    Unicode data. For lists, an error occurs if you try to send invalid Unicode
+    data, but if the input is a pure binary, no validation will be done. This is
+    to allow sending binary non-Unicode data for MySQL's binary strings (BLOB,
+    VARBINARY, etc.).</li>
+  <li id="vn2">DECIMALs are returned as `integer()' or `float()' when the value
+    can be represented without precision loss and as `binary()' for high
+    precision DECIMAL values. This is similar to how the `odbc' OTP application
+    treats DECIMALs.</li>
+  <li id="vn3">For `DATETIME', `TIMESTAMP' and `TIME' values with fractions of
+    seconds, we use a float for the seconds part. (These are unusual and were
+    added to MySQL in version 5.6.4.)</li>
+  <li id="vn4">Since `TIME' can be outside the `calendar:time()' interval, we use
+    the format as returned by `calendar:seconds_to_daystime/1' for `TIME'
+    values.</li>
+</ol>
+
+<h2>Copying</h2>
+
+Copyright 2014 The authors of MySQL/OTP. See the project page at
+<a href="https://github.com/mysql-otp/mysql-otp"
+   target="_top">https://github.com/mysql-otp/mysql-otp</a>.
+
+This library is free software licensed under the GNU LGPL which allows you to
+use it in proprietary applications as well as free software applications with
+other licenses. This documentation is generated from the source code and thus
+goes under the same license as the library itself.

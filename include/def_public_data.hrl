@@ -10,6 +10,6 @@
 
 -define(single_game_goal_scroe, 1).
 -define(game_stage, 2).
--define(rank_no, 3).
+%-define(rank_no, 3).
 -define(battle_id, 4).
 -define(battle_manager, 5).

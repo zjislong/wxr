@@ -42,7 +42,7 @@ can_get(Player, RewardID) ->
 can_get1(_, []) ->
     true;
 can_get1(Player, [{total_score, Score} | R]) ->
-    case cache:get(?single_game_goal_scroe, 0) >= Score of
+    case public_data:get(?single_game_goal_scroe, 0) >= Score of
         true ->
             can_get1(Player, R);
         false ->

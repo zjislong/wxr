@@ -15,7 +15,11 @@
 -include("proto.hrl").
 
 %% API
--export([get_player/1,
+-export([get_all_players/0,
+    get_player/1,
+    put_player/1,
+    update_player/2,
+    del_player/1,
     exp2level/1,
     get_skills/1,
     save_player/1,
@@ -23,6 +27,11 @@
     update_title/2,
     send_msg_to_client/2,
     loop/2]).
+
+-spec get_all_players() -> [{PlayerID :: string(), Player :: #player{}}].
+get_all_players() ->
+    {ok, Players} = lbm_kv:match_key(player, '_'),
+    Players.
 
 -spec get_player(PlayerID :: string()) -> #player{}.
 get_player(PlayerID) ->
@@ -32,6 +41,21 @@ get_player(PlayerID) ->
         _ ->
             load_player(PlayerID)
     end.
+
+-spec put_player(Player :: #player{}) -> term().
+put_player(Player) ->
+    lbm_kv:put(player, Player#player.player_id, Player).
+
+-type update_fun() :: fun((term(), {value, term()} | undefined) ->
+                                 {value, term()} | term()).
+-spec update_player(PlayerID :: string(), Fun :: update_fun()) -> #player{}.
+update_player(PlayerID, Fun) ->
+    {ok, {_, [{_, Player}]}} = lbm_kv:update(player, PlayerID, Fun),
+    Player.
+
+-spec del_player(PlayerID :: string()) -> term().
+del_player(PlayerID) ->
+    lbm_kv:del(player, PlayerID).
 
 -spec exp2level(Exp :: non_neg_integer()) -> non_neg_integer().
 exp2level(Exp) ->
@@ -85,7 +109,7 @@ load_player(PlayerID) ->
                          titile = Title,
                          name = misc:bitstring_to_term(Name, ""),
                          head = misc:bitstring_to_term(Head, ""),
-                         gender = Gender,
+                         gender = misc:bitstring_to_term(Gender, ""),
                          city = misc:bitstring_to_term(City, ""),
                          province = misc:bitstring_to_term(Province, ""),
                          country = misc:bitstring_to_term(Country, ""),
@@ -136,18 +160,18 @@ save_player(Player) ->
             IsFirstGame,
             IsLoadGameTip,
             Title,
-            Name,
-            Head,
-            Gender,
-            City,
-            Province,
-            Country,
+            misc:term_to_bitstring(Name),
+            misc:term_to_bitstring(Head),
+            misc:term_to_bitstring(Gender),
+            misc:term_to_bitstring(City),
+            misc:term_to_bitstring(Province),
+            misc:term_to_bitstring(Country),
             Exp,
             Gold,
             Score,
             CurPiFu,
-            PiFu,
-            GetedGoalReward,
+            misc:term_to_bitstring(PiFu),
+            misc:term_to_bitstring(GetedGoalReward),
             Star,
             FightCount,
             FightCountTime,
@@ -186,9 +210,15 @@ score2title1(Score, [Title | R], CurTitle) ->
     end.
 
 %%发送协议数据
--spec send_msg_to_client(PlayerID::string(), Msgs::[term()])->no_return().
+-spec send_msg_to_client(PlayerID::string(), Msgs::[term()])->ok|error.
 send_msg_to_client(PlayerID, Msgs) ->
-    global:send({player, PlayerID}, {msg, Msgs}).
+    case global:whereis_name({player, PlayerID}) of
+	    Pid when is_pid(Pid) ->
+	        Pid ! {msg, Msgs},
+            ok;
+	    undefined ->
+            error
+    end.
 
 %%循环
 loop(PlayerID, LoopTime) ->

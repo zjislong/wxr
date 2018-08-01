@@ -30,14 +30,6 @@
   PRIMARY KEY (`Key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='游戏公共数据';
 
- CREATE TABLE IF NOT EXISTS `GRank` (
-  `Tag` varchar(20) NOT NULL COMMENT 'Rank标签',
-  `DB` varchar(20) DEFAULT '' COMMENT 'Rank表',
-  `KetEts` varchar(20) DEFAULT '' COMMENT 'Rank表ets_key',
-  `RankEts` varchar(20) DEFAULT '' COMMENT 'Rank表ets_rank',
-  PRIMARY KEY (`Tag`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='排行榜srv管理信息';
-
 DELIMITER /
 CREATE PROCEDURE `PCreateRankTable` (IN RankTableName varchar(20))
 BEGIN

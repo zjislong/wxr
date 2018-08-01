@@ -19,7 +19,7 @@
     is_load_game_tip = 0 :: 0|1|matchspec_atom(),%%是否播发单人游戏新手引导
     name = "" :: string()|matchspec_atom(),  %%昵称
     head = "" :: string()|matchspec_atom(),  %%头像
-    gender = "" :: string()|matchspec_atom(),    %%性别
+    gender = "0" :: string()|matchspec_atom(),    %%性别
     city = "" :: string()|matchspec_atom(),      %%市
     province = "" :: string()|matchspec_atom(),  %%省
     country = "" :: string()|matchspec_atom(),   %%国家

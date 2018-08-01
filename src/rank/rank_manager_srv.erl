@@ -60,6 +60,7 @@ start_link() ->
     {ok, State :: #state{}} | {ok, State :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term()} | ignore).
 init([]) ->
+    process_flag(trap_exit, true),
     global:register_name(?SERVER, self()),
     {ok, #state{}}.
 
@@ -78,7 +79,7 @@ init([]) ->
     {noreply, NewState :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
     {stop, Reason :: term(), NewState :: #state{}}).
-handle_call({mfa, M, F, A}, _From, State) ->
+handle_call({apply, M, F, A}, _From, State) ->
     Res = erlang:apply(M, F, A),
     {reply, Res, State};
 handle_call(_Request, _From, State) ->
@@ -95,7 +96,7 @@ handle_call(_Request, _From, State) ->
     {noreply, NewState :: #state{}} |
     {noreply, NewState :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term(), NewState :: #state{}}).
-handle_cast({mfa, M, F, A}, State) ->
+handle_cast({apply, M, F, A}, State) ->
     erlang:apply(M, F, A),
     {noreply, State};
 handle_cast(_Request, State) ->

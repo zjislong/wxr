@@ -23,7 +23,7 @@ c_single_game(#c_single_game{}, PlayerID) ->
     Player = player_lib:get_player(PlayerID),
     ActiveSkills = player_lib:get_skills(Player),
     {[RandomSkill], _} = misc:random_list(ActiveSkills, 1),
-    Stage = cache:get(?game_stage, 1),
+    Stage = public_data:get(?game_stage, 1),
     Msg = #s_single_game{stage = Stage,
         skill = RandomSkill,
         is_load_tip = Player#player.is_load_game_tip,
@@ -36,9 +36,14 @@ c_single_game_end(#c_single_game_end{score = S, exp = Exp, gold = Gold}, PlayerI
     Player1 = Player#player{is_first_game = IsFirstGame1},
     Player2 = player_money_lib:add(Player1, [{exp, Exp}, {gold, Gold}, {score, S}], ?OPTION_SINGLE_GAME_REWARD, 0),
     Player3 = player_lib:update_title(Player2, S),
-    gen_server:cast({global, rank_manager_srv}, {mfa, rank_lib, update, [Player#player.country,Player#player.province,{add,S}]}),
-    gen_server:cast({global, rank_manager_srv}, {mfa, rank_lib, update, [Player#player.province,Player#player.city,{add,S}]}),
-    gen_server:cast({global, rank_manager_srv}, {mfa, rank_lib, update, ["personal",Player#player.player_id,{replace,S}]}),    
+    case S > 0 of
+        true ->
+            rank_lib:update(Player#player.country,Player#player.province,{add,S}),
+            rank_lib:update(Player#player.province,Player#player.city,{add,S}),
+            rank_lib:update("personal",Player#player.player_id,{replace,S});
+        false ->
+            skip
+    end,
     Msg = #s_single_game_end{
         result = 1,
         is_first = IsFirstGame1,

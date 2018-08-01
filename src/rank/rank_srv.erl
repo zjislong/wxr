@@ -165,16 +165,17 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%更新排行榜
 do_handle_cast({update, Key, Add}, #rank_srv{key_ets_name = KeyEtsName, rank_ets_name = RankEtsName, detail = Detail} = State) ->
-    #rank{value = OldValue} = rank_lib:get_rank_info(KeyEtsName, Key),
+    #rank{value = OldValue} = rank_lib:get_rank_info(KeyEtsName, Key, #rank{key = Key}),
     rank_lib:update(KeyEtsName, RankEtsName, Key, Add),
+    #rank{value = NewValue} = rank_lib:get_rank_info(KeyEtsName, Key, #rank{key = Key}),
     Detail1 = rank_lib:update_detail(Detail, OldValue, -1, []),
-    Detail2 = rank_lib:update_detail(Detail1, OldValue + Add, 1, []),
+    Detail2 = rank_lib:update_detail(Detail1, NewValue, 1, []),
     State1 = State#rank_srv{detail = Detail2},
     ets:insert(?ETS_RANK_SRV, State1),
     {noreply, State1};
 %%重置
 do_handle_cast(reset, #rank_srv{db_name = DBName, key_ets_name = KeyEtsName, rank_ets_name = RankEtsName, detail = Detail} = State) ->
-    db:query("truncate ?", [DBName]),
+    db:query("truncate "++DBName, []),
     ets:delete_all_objects(KeyEtsName),
     ets:delete_all_objects(RankEtsName),
     Detail1 = [D#rank_detail{count = 0} || D <- Detail],
@@ -193,5 +194,6 @@ do_handle_info(loop, State) ->
             skip
     end,
     {noreply, State};
-do_handle_info(_Info, State) ->
+do_handle_info(Info, State) ->
+    lager:info("~p recv unknown info ~p~n", [?MODULE, Info]),
     {noreply, State}.

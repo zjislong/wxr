@@ -24,7 +24,7 @@ c_login(Clogin, _) ->
     Msg1 = #s_login{player_id = Clogin#c_login.player_id,
         is_load_cg = Player#player.is_load_cg,
         is_load_tip = Player#player.is_load_tip},
-    Msg3 = #s_globle_goal{save_total = cache:get(?single_game_goal_scroe, 0),
+    Msg3 = #s_globle_goal{save_total = public_data:get(?single_game_goal_scroe, 0),
         need_save = data_single_game:goal_need_score()},
     Msg2 = player_lib:s_player_info(Player),
     Player1 = Player#player{

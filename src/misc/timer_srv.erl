@@ -63,6 +63,7 @@ start_link() ->
     {ok, State :: #state{}} | {ok, State :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term()} | ignore).
 init([]) ->
+    process_flag(trap_exit, true),
     erlang:send_after(1000, self(), loop),
     {ok, #state{}}.
 
@@ -117,7 +118,8 @@ handle_info(loop, State) ->
     Now = misc:unixtime(),
     [erlang:send(Pid, {loop, Now}) || {_, Pid, _, _} <- supervisor:which_children(player_sup)],
     {noreply, State};
-handle_info(_Info, State) ->
+handle_info(Info, State) ->
+    lager:info("~p recv unknown info ~p~n", [?MODULE, Info]),
     {noreply, State}.
 
 %%--------------------------------------------------------------------

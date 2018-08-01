@@ -45,6 +45,7 @@ enum msgID {
     s_battle_end = 1411;
     c_battle_info = 1412;
     s_battle_info = 1413;
+    c_cancel_match = 1414;
 }
 
 //===============================结构定义============================================
@@ -59,7 +60,7 @@ message p_rank {
 }
 
 message p_star_info {
-    required uint32 star_lv = 1;        //段位等级
+    required uint32 star_lv = 1;        //总星数等级
     required uint32 count = 2;          //人数
 }
 
@@ -206,14 +207,15 @@ message c_single_game_tip {
 //=============================排行榜========================================
 //1301 请求排行榜
 message c_rank_info {
-    required string tag = 1;            //排行榜标签
+    required string tag = 1;            //排行榜标签 "China", "Sichuan", "pvp", "personal"
     required uint32 rank = 2;           //起点排名 返回数据是该排名到之后的10名的排行榜数据
 }
 
 //1302 排行榜返回
 message s_rank_info {
     required string tag = 1;            //排行榜标签
-    repeated p_rank rank_info = 2;      //排行数据
+    required p_rank rank_self = 2;      //自己排行数据
+    repeated p_rank rank_info = 3;      //排行数据
 }
 
 //===========================多人模式=========================================
@@ -234,7 +236,7 @@ message c_match_battle {
 //1404 对战开始
 message s_battle_start {
     required string target_id = 1;      //对手id
-    required uint32 target_star = 2;    //对手段位
+    required uint32 target_star = 2;    //对手总星数
     required uint32 hp = 3;             //双方初始血量
     required string target_name = 4;    //对手昵称
     required string target_head = 5;    //对手头像
@@ -276,7 +278,7 @@ message s_hp_change {
 //1411 对战结算
 message s_battle_end {
     required uint32 battle_result = 1;  //对战结果0失败1成功
-    required uint32 star = 2;           //新的段位
+    required uint32 star = 2;           //新的总星数
 }
 
 //1412 多人模式阶段和时间
@@ -289,6 +291,11 @@ message s_battle_info {
     required uint32 time = 2;           //结束时间戳
     required uint32 fight_count = 3;    //匹配次数
     required uint32 add_second = 4;     //次数需要秒
-    repeated p_star_info info = 5;      //段位信息
+    repeated p_star_info info = 5;      //总星数信息
     required uint32 match_second = 6;   //已经匹配秒0表示没有进行匹配
+    required uint32 star = 7;           //总星数
+}
+
+//1414 退出匹配
+message c_cancel_match {
 }

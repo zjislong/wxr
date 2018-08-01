@@ -18,6 +18,7 @@
     star/1,
     status/1,
     fight_time_add_cd/0,
+    max_fight_count/0,
     reward/1]).
 
 %%初始血量
@@ -26,25 +27,25 @@ init_hp()->
 
 %%技能消耗{积分, CD}
 battle_skill(1)->
-    {20, 10};
+    {60, 10};
 battle_skill(2)->
-    {30, 10};
+    {80, 10};
 battle_skill(3)->
-    {40, 10};
+    {120, 10};
 battle_skill(_)->
     {100, 10}.
 
 %%消除获得的积分
 match_score()->
-    20.
+    10.
 
 %%漏掉扣除的血量
 miss_hp()->
-    10.
+    5.
 
 %%大招扣除的血量
 big_skill_hp()->
-    10.
+    30.
 
 %%段位有多少颗星星
 star(1)->
@@ -81,7 +82,11 @@ status(2) ->
 
 %%匹配次数恢复cd
 fight_time_add_cd() ->
-    7200.
+    60.
+
+%%最大匹配次数
+max_fight_count() ->
+    100.
 
 %%赛季奖励
 reward(1) ->

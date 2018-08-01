@@ -24,9 +24,13 @@
     miss_mark/2,
     use_skill/3,
     give_up/2,
+    deduct_hp/2,
+    judge/2,
     star/1,
     recover_fight_count/2,
-    update_star_callback/2]).
+    update_star_callback/2,
+    start_battle_srv/1,
+    start_battle_srv_callback/1]).
 
 %%获取战斗玩家
 -spec get_battle_player(ID :: string()) -> #battle_player{}.
@@ -42,35 +46,43 @@ get_battle_player(ID) ->
     end.
 
 %%更新战斗玩家
--spec set_battle_player(Player :: #battle_player{}) -> no_return().
+-spec set_battle_player(Player :: #battle_player{}) -> #battle_player{}|undefined.
 set_battle_player(Player) ->
     put(?BATTLE_PLAYER(Player#battle_player.id), Player).
 
 %%生成battle_id
 -spec new_battle_id() -> non_neg_integer().
 new_battle_id() ->
-    cache:add(?battle_id).
+    public_data:add(?battle_id).
 
 %%战斗开始
--spec battle_start(ID1::string(), ID2::string()) -> no_return().
+-spec battle_start(ID1::string(), ID2::string()) -> ok|error.
+battle_start(ID1, [$a,$i|_]=ID2) ->
+    #player{star = Star2, name = Name2, head = Head2, gender = Gender2} = player_lib:get_player(ID2),
+    send_msg_to_client(ID1, [#s_battle_start{target_id = ID2,
+     hp = data_battle:init_hp(),
+      target_star = Star2,
+      target_name = Name2,
+      target_head = Head2,
+      target_gender = Gender2}]);
 battle_start(ID1, ID2) ->
     #player{star = Star1, name = Name1, head = Head1, gender = Gender1} = player_lib:get_player(ID1),
     #player{star = Star2, name = Name2, head = Head2, gender = Gender2} = player_lib:get_player(ID2),
-    player_lib:send_msg_to_client(ID1, [#s_battle_start{target_id = ID2,
+    send_msg_to_client(ID1, [#s_battle_start{target_id = ID2,
      hp = data_battle:init_hp(),
       target_star = Star2,
       target_name = Name2,
       target_head = Head2,
       target_gender = Gender2}]),
-    player_lib:send_msg_to_client(ID2, [#s_battle_start{target_id = ID1,
+    send_msg_to_client(ID2, [#s_battle_start{target_id = ID1,
      hp = data_battle:init_hp(),
       target_star = Star1,
       target_name = Name1,
       target_head = Head1,
       target_gender = Gender1}]).
 
-%%消除
--spec catch_mark(ID :: string(), TarID :: string(), Combo :: non_neg_integer(), BigSkill :: 0|1) -> no_return().
+%%消除ok|error
+-spec catch_mark(ID :: string(), TarID :: string(), Combo :: non_neg_integer(), BigSkill :: 0|1) -> ok|error.
 catch_mark(ID, TarID, Combo, BigSkill) ->
     AddScore = Combo * data_battle:match_score(),
     BigSkillHp = BigSkill * data_battle:big_skill_hp(),
@@ -79,21 +91,21 @@ catch_mark(ID, TarID, Combo, BigSkill) ->
     set_battle_player(Player),
     set_battle_player(TarPlayer),
     {Msg3, Msg4} = judge(ID, TarID),
-    player_lib:send_msg_to_client(ID, [Msg1, Msg2 | Msg3]),
-    player_lib:send_msg_to_client(TarID, [Msg2 | Msg4]).
+    send_msg_to_client(ID, [Msg1, Msg2 | Msg3]),
+    send_msg_to_client(TarID, [Msg2 | Msg4]).
 
 %%消除失败
--spec miss_mark(ID :: string(), TarID :: string()) -> no_return().
+-spec miss_mark(ID :: string(), TarID :: string()) -> ok|error.
 miss_mark(ID, TarID) ->
     MissHp = data_battle:miss_hp(),
     {Player, Msg1} = deduct_hp(ID, MissHp),
     set_battle_player(Player),
     {Msg2, Msg3} = judge(ID, TarID),
-    player_lib:send_msg_to_client(ID, [Msg1 | Msg2]),
-    player_lib:send_msg_to_client(TarID, [Msg1 | Msg3]).
+    send_msg_to_client(ID, [Msg1 | Msg2]),
+    send_msg_to_client(TarID, [Msg1 | Msg3]).
 
 %%使用技能
--spec use_skill(ID :: string(), TarID :: string(), Skill :: non_neg_integer()) -> no_return().
+-spec use_skill(ID :: string(), TarID :: string(), Skill :: non_neg_integer()) -> ok|error.
 use_skill(ID, TarID, Skill) ->
     Player = get_battle_player(ID),
     SkillCD = case Skill of
@@ -120,8 +132,8 @@ use_skill(ID, TarID, Skill) ->
                               end,
                     Msg2 = #s_use_skill{id = TarID, skill = Skill},
                     set_battle_player(Player2),
-                    player_lib:send_msg_to_client(ID, [Msg1, Msg2]),
-                    player_lib:send_msg_to_client(TarID, [Msg2]);
+                    send_msg_to_client(ID, [Msg1, Msg2]),
+                    send_msg_to_client(TarID, [Msg2]);
                 error ->
                     lager:info("skill score error~n", []),
                     error
@@ -132,13 +144,13 @@ use_skill(ID, TarID, Skill) ->
     end.
 
 %%断线认输
--spec give_up(ID :: string(), TarID :: string()) -> ok.
+-spec give_up(ID :: string(), TarID :: string()) -> ok|error.
 give_up(ID, TarID) ->
     Player = get_battle_player(ID),
     set_battle_player(Player#battle_player{hp = 0}),
     {Msg1, Msg2} = judge(ID, TarID),
-    player_lib:send_msg_to_client(ID, Msg1),
-    player_lib:send_msg_to_client(TarID, Msg2).
+    send_msg_to_client(ID, Msg1),
+    send_msg_to_client(TarID, Msg2).
 
 %%加积分
 -spec add_score(Player :: string()|#battle_player{}, AddScore :: integer()) -> {#battle_player{}, #s_score_change{}}|error.
@@ -188,6 +200,8 @@ judge(ID1, ID2) ->
 
 %%更新段位
 -spec update_star(ID :: string(), Win :: 0|1) -> non_neg_integer().
+update_star([$a,$i|_], _) ->
+    0;
 update_star(ID, 0) ->
     Player = player_lib:get_player(ID),
     {_, Star} = star(Player#player.star),
@@ -195,13 +209,13 @@ update_star(ID, 0) ->
         0 ->
             Player#player.star;
         _ ->
-            gen_server:call({global, rank_manager_srv}, {mfa, rank_lib, update, ["pvp", ID, {add, -1}]}),
+            rank_lib:update("pvp", ID, {add, -1}),
             global:send({player, ID}, {apply_append_player, ?MODULE, update_star_callback, [-1]}),
             Player#player.star - 1
     end;
 update_star(ID, 1) ->
     Player = player_lib:get_player(ID),
-    gen_server:call({global, rank_manager_srv}, {mfa, rank_lib, update, ["pvp", ID, {add, 1}]}),
+    rank_lib:update("pvp", ID, {add, 1}),
     global:send({player, ID}, {apply_append_player, ?MODULE, update_star_callback, [1]}),
     Player#player.star + 1.
 
@@ -218,7 +232,7 @@ star1(Star, Lv) ->
         -1 ->
             {Lv, Star};
         NeedStar when NeedStar > Star ->
-            {Lv - 1, Star};
+            {Lv, Star};
         NeedStar ->
             star1(Star - NeedStar, Lv + 1)
     end.
@@ -230,17 +244,33 @@ recover_fight_count(PlayerID, LoopTime) ->
     case Player#player.fight_count_time =/= 0 andalso Player#player.fight_count_time =< LoopTime of
         true ->
             Cd = data_battle:fight_time_add_cd(),
-            FightCount = max(10, Player#player.fight_count + 1 + trunc((LoopTime - Player#player.fight_count_time) / Cd)),
-            FightCountTime = case FightCount of
-                                 10 ->
+            Max = data_battle:max_fight_count(),
+            FightCount = max(Max, Player#player.fight_count + 1 + trunc((LoopTime - Player#player.fight_count_time) / Cd)),
+            FightCountTime = case FightCount >= Max of
+                                 true ->
                                      0;
-                                 _ ->
+                                 false ->
                                      LoopTime + data_battle:fight_time_add_cd()
                              end,
             Player1 = Player#player{fight_count_time = FightCountTime, fight_count = FightCount},
             gen_server:cast({global, battle_master_srv}, {send_battle_info, Player1}),
-            lbm_kv:put(player, PlayerID, Player1),
+            player_lib:put_player(Player1),
             ok;
         false ->
             skip
     end.
+
+send_msg_to_client([$a,$i|_], _)->
+    ok;
+send_msg_to_client(ID, Msgs)->
+    player_lib:send_msg_to_client(ID, Msgs).
+
+%%在第一个玩家所在节点的battle_sup下启动battle_srv
+-spec start_battle_srv(Args :: [string(),...]) -> no_return().
+start_battle_srv([ID|_]=Args) ->
+    global:send({player, ID}, {apply, ?MODULE, start_battle_srv_callback, [Args]}).
+
+-spec start_battle_srv_callback(Args :: [string(),...]) -> ok.
+start_battle_srv_callback(Args) ->
+    supervisor:start_child(battle_sup, Args),
+    ok.

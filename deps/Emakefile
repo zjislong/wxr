@@ -1,0 +1,44 @@
+{
+	['cowboy/src/*'],
+	[debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}]
+}.
+{
+	['cowlib/src/*'],
+	[debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}, {i, "cowlib/include"}]
+}.
+{
+	['goldrush/src/*'],
+	[debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}]
+}.
+{
+	['lager/src/*'],
+	[debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}, {i, "lager/include"}]
+}.
+{
+	['mysql/src/*'],
+	[debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}, {i, "mysql/include"}]
+}.
+{
+    ['ranch/src/*'],
+    [debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}]
+}.
+{
+    ['poolboy/src/*'],
+    [debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}]
+}.
+{
+    ['mysql_poolboy/src/*'],
+    [debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}]
+}.
+{
+    ['node_pool/src/*'],
+    [debug_info, verbose, {inline_size, 30}, {outdir, "ebin"}]
+}.
+{
+    ['lbm_kv/src/*'],
+    [debug_info, verbose, {inline_size, 30}, {outdir, "ebin"},  {i, "lbm_kv/include"}]
+}.
+{
+    ['json/*'],
+    [debug_info, verbose, {inline_size, 30}, {outdir, "ebin"},  {i, "json"}]
+}.

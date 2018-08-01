@@ -68,6 +68,7 @@ start_link(From, Binary) ->
     {ok, State :: #state{}} | {ok, State :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term()} | ignore).
 init([From, Binary]) ->
+    process_flag(trap_exit, true),
     Clogin = proto:decode_msg(Binary, c_login),
     {ok, Msgs, Player} = login:c_login(Clogin, 0),
     Pid = self(),
@@ -79,7 +80,7 @@ init([From, Binary]) ->
     end,
     global:register_name({player, Clogin#c_login.player_id}, Pid),
     [lager:info("pid ~p player ~p send msg: ~p", [Pid, Player#player.player_id, M]) || M <- Msgs],
-    lbm_kv:put(player, Player#player.player_id, Player),
+    player_lib:put_player(Player),
     Msgs2 = [{binary, proto_lib:encode_msg(M)} || M <- Msgs],
     From ! {msg, Msgs2},
     {ok, #state{player_id = Player#player.player_id, pid = Pid, gate_pid = From}, 3000}.
@@ -207,21 +208,32 @@ do_handle_info({apply, Mod, Fun, Args}, State) ->
     do_handle_result(erlang:apply(Mod, Fun, Args), State);
 do_handle_info(stop, State) ->
     {stop, normal, State};
-do_handle_info(_Info, State) ->
+do_handle_info(Info, State) ->
+    lager:info("~p recv unknown info ~p~n", [?MODULE, Info]),
     {noreply, State}.
 
 do_handle_result({error, _}, State) ->
     {noreply, State};
 do_handle_result({_, Msgs}, State) ->
-    [lager:info("pid ~p player ~p send msg: ~p", [State#state.pid, State#state.player_id, M]) || M <- Msgs],
-    Msgs2 = [{binary, proto_lib:encode_msg(M)} || M <- Msgs],
-    State#state.gate_pid ! {msg, Msgs2},
+    case Msgs of
+        [_|_] ->
+            [lager:info("pid ~p player ~p send msg: ~p", [State#state.pid, State#state.player_id, M]) || M <- Msgs],
+            Msgs2 = [{binary, proto_lib:encode_msg(M)} || M <- Msgs],
+            State#state.gate_pid ! {msg, Msgs2};
+        _->
+            skip
+    end,
     {noreply, State};
 do_handle_result({_, Msgs, Player}, State) ->
-    [lager:info("pid ~p player ~p send msg: ~p", [State#state.pid, State#state.player_id, M]) || M <- Msgs],
-    Msgs2 = [{binary, proto_lib:encode_msg(M)} || M <- Msgs],
-    State#state.gate_pid ! {msg, Msgs2},
-    lbm_kv:put(player, Player#player.player_id, Player),
+    case Msgs of
+        [_|_] ->
+            [lager:info("pid ~p player ~p send msg: ~p", [State#state.pid, State#state.player_id, M]) || M <- Msgs],
+            Msgs2 = [{binary, proto_lib:encode_msg(M)} || M <- Msgs],
+            State#state.gate_pid ! {msg, Msgs2};
+        _->
+            skip
+    end,
+    player_lib:put_player(Player),
     player_lib:save_player(Player#player{last_loop_time = State#state.last_loop_time}),
     {noreply, State};
 do_handle_result(_, State)->

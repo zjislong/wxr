@@ -20,33 +20,23 @@
     save/2,
     update/3,
     update/4,
-    get_rank_info/2,
-    get_p_rank_info/2,
+    update_callback/3,
+    get_rank_info/3,
+    get_p_rank_info/3,
     update_detail/4,
     reset/1]).
 
 %%初始化
 -spec init(Tag :: string(), Detail :: [#rank_detail{}]) -> {DBTableName :: string(), KeyEtsName :: atom(), RankEtsName :: atom(), [#rank_detail{}]}.
 init(Tag, Detail) ->
-    case db:query("select * from GRank where Tag = ?", [misc:term_to_bitstring(Tag)]) of
-        [[_, DBTableName0, KeyEtsName0, RankEtsName0]] ->
-            KeyEtsName = misc:bitstring_to_term(KeyEtsName0, default_key_ets),
-            RankEtsName = misc:bitstring_to_term(RankEtsName0, default_rank_ets),
-            DBTableName = misc:bitstring_to_term(DBTableName0, "GRank_default");
-        _ ->
-            RankNO = cache:get(?rank_no, 1),
-            cache:put(?rank_no, RankNO + 1),
-            RankNO1 = integer_to_list(RankNO),
-            KeyEtsName = key_ets_name(RankNO1),
-            RankEtsName = rank_ets_name(RankNO1),
-            DBTableName = db_name(RankNO1),
-            create_db_table(DBTableName),
-            db:query("insert into GRank values (?,?,?,?)", [misc:term_to_bitstring(Tag), misc:term_to_bitstring(DBTableName), misc:term_to_bitstring(KeyEtsName), misc:term_to_bitstring(RankEtsName)])
-    end,
+    KeyEtsName = key_ets_name(Tag),
+    RankEtsName = rank_ets_name(Tag),
+    DBTableName = db_name(Tag),
+    create_db_table(DBTableName),
     ets:new(KeyEtsName, [{keypos, #rank.key}, named_table, set, public]),
     ets:new(RankEtsName, [{keypos, #rank.rank}, named_table, set, public]),
     Rows = db:query("select * from " ++ DBTableName, []),
-    RankInfo = [#rank{key = binary_to_list(Key), value = Value, rank = Rank} || [Key, Value, Rank] <- Rows],
+    RankInfo = [#rank{key = misc:bitstring_to_term(Key, ""), value = Value, rank = Rank} || [Key, Value, Rank] <- Rows],
     set_rank_info(KeyEtsName, RankInfo),
     set_rank_info(RankEtsName, RankInfo),
     Detail1 = init_detail(RankInfo, Detail),
@@ -59,29 +49,32 @@ save(DBTableName, KeyEtsName) ->
         [] ->
             ok;
         RankInfos ->
-            [db:query("replace into " ++ DBTableName ++ " values (?, ?, ?)", [Key, Value, Rank]) || #rank{key = Key, value = Value, rank = Rank} <- RankInfos],
+            [db:query("replace into " ++ DBTableName ++ " values (?, ?, ?)", [misc:term_to_bitstring(Key), Value, Rank]) || #rank{key = Key, value = Value, rank = Rank} <- RankInfos],
             set_rank_info(KeyEtsName, [R#rank{save = 0} || R <- RankInfos]),
             ok
     end.
 
 %%db表名
--spec db_name(RankNO :: string()) -> string().
-db_name(RankNO) ->
-    "GRank_" ++ RankNO.
+-spec db_name(Tag :: string()) -> string().
+db_name(Tag) ->
+    "GRank_" ++ Tag.
 
 %%排行榜ets名字
--spec rank_ets_name(RankNO :: string()) -> atom().
-rank_ets_name(RankNO) ->
-    list_to_atom("ets_rank_" ++ RankNO).
+-spec rank_ets_name(Tag :: string()) -> atom().
+rank_ets_name(Tag) ->
+    list_to_atom("ets_rank_" ++ Tag).
 
 %%排行榜ets名字
--spec key_ets_name(RankNO :: string()) -> atom().
-key_ets_name(RankNO) ->
-    list_to_atom("ets_rank_key_" ++ RankNO).
+-spec key_ets_name(Tag :: string()) -> atom().
+key_ets_name(Tag) ->
+    list_to_atom("ets_rank_key_" ++ Tag).
 
 %%更新排行榜
 -spec update(Tag :: string(), Key :: string(), Change :: {add, integer()}|{replace, integer()}) -> term().
 update(Tag, Key, Change) ->
+    gen_server:cast({global, rank_manager_srv}, {apply, rank_lib, update_callback, [Tag, Key, Change]}).
+
+update_callback(Tag, Key, Change) ->
     case ets:lookup(?ETS_RANK_SRV, Tag) of
         [#rank_srv{pid = Srv}] ->
             ok;
@@ -93,10 +86,15 @@ update(Tag, Key, Change) ->
 %%更新排行榜
 -spec update(KeyEtsName :: atom(), RankEtsName :: atom(), Key :: string(), Change :: {add, integer()}|{replace, integer()}) -> ok.
 update(KeyEtsName, RankEtsName, Key, {add, Add}) ->
-    #rank{value = Value} = RankInfo = get_rank_info(KeyEtsName, Key),
-    update1(KeyEtsName, RankEtsName, RankInfo#rank{value = Value + Add, save = 1}, Add div abs(Add));
+    #rank{value = Value} = RankInfo = get_rank_info(KeyEtsName, Key, #rank{key = Key}),
+    case Add > 0 of
+        true ->
+            update1(KeyEtsName, RankEtsName, RankInfo#rank{value = Value + Add, save = 1}, 1);
+        false ->
+            update1(KeyEtsName, RankEtsName, RankInfo#rank{value = Value + Add, save = 1}, -1)
+    end;
 update(KeyEtsName, RankEtsName, Key, {replace, Replace}) ->
-    #rank{value = Value} = RankInfo = get_rank_info(KeyEtsName, Key),
+    #rank{value = Value} = RankInfo = get_rank_info(KeyEtsName, Key, #rank{key = Key}),
     case Replace > Value of
         true ->
             update1(KeyEtsName, RankEtsName, RankInfo#rank{value = Replace, save = 1}, 1);
@@ -104,69 +102,66 @@ update(KeyEtsName, RankEtsName, Key, {replace, Replace}) ->
             ok
     end.
 
+update1(KeyEtsName, RankEtsName, #rank{rank = 0} = RankInfo, Incr) ->
+    case Incr of
+        1 ->
+            Rank = ets:info(KeyEtsName, size) + 1,
+            update1(KeyEtsName, RankEtsName, RankInfo#rank{rank = Rank}, 1);
+        -1 ->
+            ok
+    end;
 update1(KeyEtsName, RankEtsName, #rank{rank = 1} = RankInfo, 1) ->
     set_rank_info(KeyEtsName, RankInfo),
     set_rank_info(RankEtsName, RankInfo),
     ok;
-update1(KeyEtsName, RankEtsName, #rank{rank = 0} = RankInfo, Incr) ->
-    Rank = ets:info(KeyEtsName, size) + 1,
-    update1(KeyEtsName, RankEtsName, RankInfo#rank{rank = Rank}, Incr);
-update1(KeyEtsName, RankEtsName, #rank{value = Value, rank = Rank} = RankInfo, 1) ->
-    TarRank = Rank - 1,
-    case get_rank_info(RankEtsName, TarRank) of
-        #rank{value = TarValue} = TarRankInfo when TarValue < Value ->
+update1(KeyEtsName, RankEtsName, #rank{value = Value, rank = Rank} = RankInfo, Incr) ->
+    TarRank = Rank - Incr,
+    case get_rank_info(RankEtsName, TarRank, error) of
+        #rank{value = TarValue} = TarRankInfo when TarValue * Incr < Value * Incr->
             TarRankInfo1 = TarRankInfo#rank{rank = Rank, save = 1},
             set_rank_info(KeyEtsName, TarRankInfo1),
             set_rank_info(RankEtsName, TarRankInfo1),
-            update1(KeyEtsName, RankEtsName, RankInfo#rank{rank = TarRank}, 1);
-        _ ->
-            set_rank_info(KeyEtsName, RankInfo),
-            set_rank_info(RankEtsName, RankInfo)
-    end;
-update1(KeyEtsName, RankEtsName, #rank{value = Value, rank = Rank} = RankInfo, -1) ->
-    TarRank = Rank + 1,
-    case get_rank_info(RankEtsName, TarRank) of
-        #rank{value = TarValue} = TarRankInfo when TarValue > Value ->
-            TarRankInfo1 = TarRankInfo#rank{rank = Rank, save = 1},
-            set_rank_info(KeyEtsName, TarRankInfo1),
-            set_rank_info(RankEtsName, TarRankInfo1),
-            update1(KeyEtsName, RankEtsName, RankInfo#rank{rank = TarRank}, -1);
+            update1(KeyEtsName, RankEtsName, RankInfo#rank{rank = TarRank}, Incr);
         _ ->
             set_rank_info(KeyEtsName, RankInfo),
             set_rank_info(RankEtsName, RankInfo)
     end.
 
 %%获取排行数据
--spec get_rank_info(EtsName :: atom(), Key :: string()|non_neg_integer()) -> RankInfo :: #rank{}.
-get_rank_info(EtsName, Key) ->
+-spec get_rank_info(EtsName :: atom(), Key :: string()|non_neg_integer(), DefaultInfo :: term()) -> RankInfo :: #rank{}|term().
+get_rank_info(EtsName, Key, DefaultInfo) ->
     case ets:lookup(EtsName, Key) of
         [#rank{} = RankInfo] ->
             RankInfo;
         _ ->
-            #rank{key = Key}
+            DefaultInfo
     end.
 
 %%更新排行数据
 -spec set_rank_info(EtsName :: atom(), RankInfo :: #rank{}|[#rank{}]) -> true.
 set_rank_info(EtsName, RankInfo) ->
+    lager:info("~p~n", [RankInfo]),
     ets:insert(EtsName, RankInfo).
 
 %%创建db表
 -spec create_db_table(DBTableName :: string()) -> term().
 create_db_table(DBTableName) ->
-    db:query("call PCreateRankTable(?)", [DBTableName]).
+    db:query("call PCreateRankTable('" ++ DBTableName ++ "')", []).
 
 %%获取排名数据
--spec get_p_rank_info(Tag :: string(), Rank :: non_neg_integer()) -> [#p_rank{}].
-get_p_rank_info(Tag, Rank) ->
+-spec get_p_rank_info(Tag :: string(), Rank :: non_neg_integer(), SelfKey :: string()) -> {#p_rank{}, [#p_rank{}]}.
+get_p_rank_info(Tag, Rank, SelfKey) ->
     case ets:lookup(?ETS_RANK_SRV, Tag) of
-        [#rank_srv{rank_ets_name = RankEtsName}] ->
+        [#rank_srv{key_ets_name = KeyEtsName, rank_ets_name = RankEtsName}] ->
             ok;
         _ ->
             supervisor:start_child(rank_sup, [Tag, []]),
-            [#rank_srv{rank_ets_name = RankEtsName}] = ets:lookup(?ETS_RANK_SRV, Tag)
+            [#rank_srv{key_ets_name = KeyEtsName, rank_ets_name = RankEtsName}] = ets:lookup(?ETS_RANK_SRV, Tag)
     end,
-    [rank2p_rank(get_rank_info(RankEtsName, R)) || R <- lists:seq(Rank, Rank + 9)].
+    {
+        rank2p_rank(get_rank_info(KeyEtsName, SelfKey, #rank{key = SelfKey})),
+        [rank2p_rank(RankInfo) || R <- lists:seq(Rank, Rank + 9), RankInfo <- [get_rank_info(RankEtsName, R, error)], RankInfo =/= error]
+    }.
 
 %%排名数据结构转化
 -spec rank2p_rank(RankInfo :: #rank{}) -> #p_rank{}.

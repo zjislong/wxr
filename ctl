@@ -1,10 +1,11 @@
 #!/bin/bash
 #control script
+pwd=`pwd`
+cd `dirname $0`
 nodename=`escript bin/node_name`
 pa='-pa ebin deps/ebin'
 config='-config config/app.config'
 cookie='-setcookie wxr'
-sasl='-sasl sasl_error_logger {file,"sasl.log"}'
 option='+P 100000 +K true -detached'
 rand=`openssl rand -hex 10`
 case $1 in
@@ -12,10 +13,10 @@ case $1 in
         erl -noshell -pa deps/ebin tools/mmake/ebin -eval "mmake:all(8),erlang:halt(0)."
         ;;
     live)
-        erl -name ${nodename} ${pa} ${config} ${cookie} ${sasl} -s server start
+        erl -name ${nodename} ${pa} ${config} ${cookie} -s server start
         ;;
     start)
-        erl -name ${nodename} ${pa} ${config} ${cookie} ${sasl} ${option} -s server start
+        erl -name ${nodename} ${pa} ${config} ${cookie} ${option} -s server start
         ;;
     stop)
         erl -name stop_${rand}@127.0.0.1 -noshell -hidden ${cookie} -eval "rpc:call('${nodename}', server, stop, [], 5000),erlang:halt(0)."
@@ -31,7 +32,7 @@ case $1 in
         ;;
     patch)
         erl -noshell -pa deps/ebin tools/mmake/ebin -eval "mmake:all(8),erlang:halt(0)."
-        tar cvf wxr_server.tar bin config deps/ebin ebin priv ctl
+        tar cvf wxr_server.tar bin deps/ebin ebin priv ctl
         ;;
     *)
         echo make: compile all code
@@ -44,3 +45,4 @@ case $1 in
 	echo patch: create ptach tar file
         ;;
 esac
+cd ${pwd}

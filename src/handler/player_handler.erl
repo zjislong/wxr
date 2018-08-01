@@ -50,8 +50,9 @@ websocket_info({msg, Msgs}, State) ->
 websocket_info(_Info, State) ->
     {ok, State}.
 
-terminate(_Reason, _Req, State) ->
-    case maps:get(player, State, undefined) of
+terminate(Reason, _Req, State) ->
+    lager:info("gate:~p stop, reson:~p~n", [State, Reason]),
+    case maps:get(player_pid, State, undefined) of
         undefined ->
             ok;
         PlayerPid ->

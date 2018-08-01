@@ -7,6 +7,56 @@
 
 -define(proto_gpb_version, "4.1.9").
 
+-ifndef('C_CHANGE_PI_FU_PB_H').
+-define('C_CHANGE_PI_FU_PB_H', true).
+-record(c_change_pi_fu,
+        {pi_fu                  :: non_neg_integer() % = 1, 32 bits
+        }).
+-endif.
+
+-ifndef('C_GOAL_REWARD_PB_H').
+-define('C_GOAL_REWARD_PB_H', true).
+-record(c_goal_reward,
+        {
+        }).
+-endif.
+
+-ifndef('C_PLAYER_INFO_PB_H').
+-define('C_PLAYER_INFO_PB_H', true).
+-record(c_player_info,
+        {
+        }).
+-endif.
+
+-ifndef('S_GET_PLAYER_ID_PB_H').
+-define('S_GET_PLAYER_ID_PB_H', true).
+-record(s_get_player_id,
+        {player_id              :: iolist()         % = 1
+        }).
+-endif.
+
+-ifndef('C_USE_SKILL_PB_H').
+-define('C_USE_SKILL_PB_H', true).
+-record(c_use_skill,
+        {skill                  :: non_neg_integer() % = 1, 32 bits
+        }).
+-endif.
+
+-ifndef('C_CATCH_MARK_PB_H').
+-define('C_CATCH_MARK_PB_H', true).
+-record(c_catch_mark,
+        {combo                  :: non_neg_integer(), % = 1, 32 bits
+         big_skill              :: non_neg_integer() % = 2, 32 bits
+        }).
+-endif.
+
+-ifndef('C_HEART_PB_H').
+-define('C_HEART_PB_H', true).
+-record(c_heart,
+        {
+        }).
+-endif.
+
 -ifndef('S_PLAYER_INFO_PB_H').
 -define('S_PLAYER_INFO_PB_H', true).
 -record(s_player_info,
@@ -18,9 +68,23 @@
         }).
 -endif.
 
--ifndef('S_HEART_PB_H').
--define('S_HEART_PB_H', true).
--record(s_heart,
+-ifndef('C_CANCEL_MATCH_PB_H').
+-define('C_CANCEL_MATCH_PB_H', true).
+-record(c_cancel_match,
+        {
+        }).
+-endif.
+
+-ifndef('C_FINISH_TIP_PB_H').
+-define('C_FINISH_TIP_PB_H', true).
+-record(c_finish_tip,
+        {
+        }).
+-endif.
+
+-ifndef('C_BATTLE_INFO_PB_H').
+-define('C_BATTLE_INFO_PB_H', true).
+-record(c_battle_info,
         {
         }).
 -endif.
@@ -33,6 +97,75 @@
         }).
 -endif.
 
+-ifndef('C_LOGIN_PB_H').
+-define('C_LOGIN_PB_H', true).
+-record(c_login,
+        {player_id              :: iolist(),        % = 1
+         name                   :: iolist(),        % = 2
+         head                   :: iolist(),        % = 3
+         gender                 :: iolist(),        % = 4
+         city                   :: iolist(),        % = 5
+         province               :: iolist(),        % = 6
+         country                :: iolist()         % = 7
+        }).
+-endif.
+
+-ifndef('C_FINISH_CG_PB_H').
+-define('C_FINISH_CG_PB_H', true).
+-record(c_finish_cg,
+        {
+        }).
+-endif.
+
+-ifndef('S_LOGIN_PB_H').
+-define('S_LOGIN_PB_H', true).
+-record(s_login,
+        {player_id              :: iolist(),        % = 1
+         is_load_cg             :: non_neg_integer(), % = 2, 32 bits
+         is_load_tip            :: non_neg_integer() % = 3, 32 bits
+        }).
+-endif.
+
+-ifndef('S_SINGLE_GAME_END_PB_H').
+-define('S_SINGLE_GAME_END_PB_H', true).
+-record(s_single_game_end,
+        {result                 :: non_neg_integer(), % = 1, 32 bits
+         is_first               :: non_neg_integer(), % = 2, 32 bits
+         total_score            :: non_neg_integer(), % = 3, 32 bits
+         total_exp              :: non_neg_integer() % = 4, 32 bits
+        }).
+-endif.
+
+-ifndef('C_FRIEND_BATTLE_INVITE_PB_H').
+-define('C_FRIEND_BATTLE_INVITE_PB_H', true).
+-record(c_friend_battle_invite,
+        {
+        }).
+-endif.
+
+-ifndef('S_FRIEND_BATTLE_INVITE_PB_H').
+-define('S_FRIEND_BATTLE_INVITE_PB_H', true).
+-record(s_friend_battle_invite,
+        {result                 :: non_neg_integer(), % = 1, 32 bits
+         invite_code            :: non_neg_integer() % = 2, 32 bits
+        }).
+-endif.
+
+-ifndef('S_GOAL_REWARD_PB_H').
+-define('S_GOAL_REWARD_PB_H', true).
+-record(s_goal_reward,
+        {can_reward = []        :: [non_neg_integer()] | undefined, % = 1, 32 bits
+         geted_reward = []      :: [non_neg_integer()] | undefined % = 2, 32 bits
+        }).
+-endif.
+
+-ifndef('S_HEART_PB_H').
+-define('S_HEART_PB_H', true).
+-record(s_heart,
+        {
+        }).
+-endif.
+
 -ifndef('S_HP_CHANGE_PB_H').
 -define('S_HP_CHANGE_PB_H', true).
 -record(s_hp_change,
@@ -41,50 +174,13 @@
         }).
 -endif.
 
--ifndef('C_BUY_PI_FU_PB_H').
--define('C_BUY_PI_FU_PB_H', true).
--record(c_buy_pi_fu,
-        {pi_fu                  :: non_neg_integer() % = 1, 32 bits
-        }).
--endif.
-
--ifndef('C_GET_PLAYER_ID_PB_H').
--define('C_GET_PLAYER_ID_PB_H', true).
--record(c_get_player_id,
-        {code                   :: iolist()         % = 1
-        }).
--endif.
-
--ifndef('C_MISS_MARK_PB_H').
--define('C_MISS_MARK_PB_H', true).
--record(c_miss_mark,
-        {
-        }).
--endif.
-
--ifndef('C_PLAYER_INFO_PB_H').
--define('C_PLAYER_INFO_PB_H', true).
--record(c_player_info,
-        {
-        }).
--endif.
-
--ifndef('S_BATTLE_START_PB_H').
--define('S_BATTLE_START_PB_H', true).
--record(s_battle_start,
-        {target_id              :: iolist(),        % = 1
-         target_star            :: non_neg_integer(), % = 2, 32 bits
-         hp                     :: non_neg_integer(), % = 3, 32 bits
-         target_name            :: iolist(),        % = 4
-         target_head            :: iolist(),        % = 5
-         target_gender          :: iolist()         % = 6
-        }).
--endif.
-
--ifndef('S_SCORE_CHANGE_PB_H').
--define('S_SCORE_CHANGE_PB_H', true).
--record(s_score_change,
-        {score                  :: non_neg_integer() % = 1, 32 bits
+-ifndef('S_SINGLE_GAME_PB_H').
+-define('S_SINGLE_GAME_PB_H', true).
+-record(s_single_game,
+        {stage                  :: non_neg_integer(), % = 1, 32 bits
+         skill                  :: non_neg_integer(), % = 2, 32 bits
+         is_load_tip            :: non_neg_integer(), % = 3, 32 bits
+         cur_pi_fu              :: non_neg_integer() % = 4, 32 bits
         }).
 -endif.
 
@@ -104,132 +200,16 @@
          fight_count            :: non_neg_integer(), % = 3, 32 bits
          add_second             :: non_neg_integer(), % = 4, 32 bits
          info = []              :: [#p_star_info{}] | undefined, % = 5
-         match_second           :: non_neg_integer() % = 6, 32 bits
+         match_second           :: non_neg_integer(), % = 6, 32 bits
+         star                   :: non_neg_integer() % = 7, 32 bits
         }).
 -endif.
 
--ifndef('C_SINGLE_GAME_PB_H').
--define('C_SINGLE_GAME_PB_H', true).
--record(c_single_game,
-        {
-        }).
--endif.
-
--ifndef('C_FINISH_TIP_PB_H').
--define('C_FINISH_TIP_PB_H', true).
--record(c_finish_tip,
-        {
-        }).
--endif.
-
--ifndef('S_SINGLE_GAME_PB_H').
--define('S_SINGLE_GAME_PB_H', true).
--record(s_single_game,
-        {stage                  :: non_neg_integer(), % = 1, 32 bits
-         skill                  :: non_neg_integer(), % = 2, 32 bits
-         is_load_tip            :: non_neg_integer(), % = 3, 32 bits
-         cur_pi_fu              :: non_neg_integer() % = 4, 32 bits
-        }).
--endif.
-
--ifndef('S_GLOBLE_GOAL_PB_H').
--define('S_GLOBLE_GOAL_PB_H', true).
--record(s_globle_goal,
-        {save_total             :: non_neg_integer(), % = 1, 32 bits
-         need_save              :: non_neg_integer() % = 2, 32 bits
-        }).
--endif.
-
--ifndef('S_SINGLE_GAME_END_PB_H').
--define('S_SINGLE_GAME_END_PB_H', true).
--record(s_single_game_end,
-        {result                 :: non_neg_integer(), % = 1, 32 bits
-         is_first               :: non_neg_integer(), % = 2, 32 bits
-         total_score            :: non_neg_integer(), % = 3, 32 bits
-         total_exp              :: non_neg_integer() % = 4, 32 bits
-        }).
--endif.
-
--ifndef('C_BATTLE_INFO_PB_H').
--define('C_BATTLE_INFO_PB_H', true).
--record(c_battle_info,
-        {
-        }).
--endif.
-
--ifndef('C_MATCH_BATTLE_PB_H').
--define('C_MATCH_BATTLE_PB_H', true).
--record(c_match_battle,
-        {
-        }).
--endif.
-
--ifndef('C_SINGLE_GAME_TIP_PB_H').
--define('C_SINGLE_GAME_TIP_PB_H', true).
--record(c_single_game_tip,
-        {
-        }).
--endif.
-
--ifndef('C_CATCH_MARK_PB_H').
--define('C_CATCH_MARK_PB_H', true).
--record(c_catch_mark,
-        {combo                  :: non_neg_integer(), % = 1, 32 bits
-         big_skill              :: non_neg_integer() % = 2, 32 bits
-        }).
--endif.
-
--ifndef('S_GOAL_REWARD_PB_H').
--define('S_GOAL_REWARD_PB_H', true).
--record(s_goal_reward,
-        {can_reward = []        :: [non_neg_integer()] | undefined, % = 1, 32 bits
-         geted_reward = []      :: [non_neg_integer()] | undefined % = 2, 32 bits
-        }).
--endif.
-
--ifndef('C_SINGLE_GAME_END_PB_H').
--define('C_SINGLE_GAME_END_PB_H', true).
--record(c_single_game_end,
-        {score                  :: non_neg_integer(), % = 1, 32 bits
-         exp                    :: non_neg_integer(), % = 2, 32 bits
-         gold                   :: non_neg_integer() % = 3, 32 bits
-        }).
--endif.
-
--ifndef('S_GET_PLAYER_ID_PB_H').
--define('S_GET_PLAYER_ID_PB_H', true).
--record(s_get_player_id,
-        {player_id              :: iolist()         % = 1
-        }).
--endif.
-
--ifndef('S_GET_GOAL_REWARD_PB_H').
--define('S_GET_GOAL_REWARD_PB_H', true).
--record(s_get_goal_reward,
-        {reward_id              :: non_neg_integer(), % = 1, 32 bits
-         result                 :: non_neg_integer() % = 2, 32 bits
-        }).
--endif.
-
--ifndef('C_CHANGE_PI_FU_PB_H').
--define('C_CHANGE_PI_FU_PB_H', true).
--record(c_change_pi_fu,
-        {pi_fu                  :: non_neg_integer() % = 1, 32 bits
-        }).
--endif.
-
--ifndef('S_CHANGE_PI_FU_PB_H').
--define('S_CHANGE_PI_FU_PB_H', true).
--record(s_change_pi_fu,
-        {pi_fu                  :: non_neg_integer(), % = 1, 32 bits
-         result                 :: non_neg_integer() % = 2, 32 bits
-        }).
--endif.
-
--ifndef('C_HEART_PB_H').
--define('C_HEART_PB_H', true).
--record(c_heart,
-        {
+-ifndef('S_USE_SKILL_PB_H').
+-define('S_USE_SKILL_PB_H', true).
+-record(s_use_skill,
+        {id                     :: iolist(),        % = 1
+         skill                  :: non_neg_integer() % = 2, 32 bits
         }).
 -endif.
 
@@ -246,18 +226,87 @@
         }).
 -endif.
 
+-ifndef('S_GLOBLE_GOAL_PB_H').
+-define('S_GLOBLE_GOAL_PB_H', true).
+-record(s_globle_goal,
+        {save_total             :: non_neg_integer(), % = 1, 32 bits
+         need_save              :: non_neg_integer() % = 2, 32 bits
+        }).
+-endif.
+
+-ifndef('S_SCORE_CHANGE_PB_H').
+-define('S_SCORE_CHANGE_PB_H', true).
+-record(s_score_change,
+        {score                  :: non_neg_integer() % = 1, 32 bits
+        }).
+-endif.
+
+-ifndef('C_SINGLE_GAME_TIP_PB_H').
+-define('C_SINGLE_GAME_TIP_PB_H', true).
+-record(c_single_game_tip,
+        {
+        }).
+-endif.
+
+-ifndef('S_CHANGE_PI_FU_PB_H').
+-define('S_CHANGE_PI_FU_PB_H', true).
+-record(s_change_pi_fu,
+        {pi_fu                  :: non_neg_integer(), % = 1, 32 bits
+         result                 :: non_neg_integer() % = 2, 32 bits
+        }).
+-endif.
+
+-ifndef('C_MISS_MARK_PB_H').
+-define('C_MISS_MARK_PB_H', true).
+-record(c_miss_mark,
+        {
+        }).
+-endif.
+
+-ifndef('C_GET_PLAYER_ID_PB_H').
+-define('C_GET_PLAYER_ID_PB_H', true).
+-record(c_get_player_id,
+        {code                   :: iolist()         % = 1
+        }).
+-endif.
+
+-ifndef('C_SINGLE_GAME_END_PB_H').
+-define('C_SINGLE_GAME_END_PB_H', true).
+-record(c_single_game_end,
+        {score                  :: non_neg_integer(), % = 1, 32 bits
+         exp                    :: non_neg_integer(), % = 2, 32 bits
+         gold                   :: non_neg_integer() % = 3, 32 bits
+        }).
+-endif.
+
+-ifndef('C_SINGLE_GAME_PB_H').
+-define('C_SINGLE_GAME_PB_H', true).
+-record(c_single_game,
+        {
+        }).
+-endif.
+
+-ifndef('C_MATCH_BATTLE_PB_H').
+-define('C_MATCH_BATTLE_PB_H', true).
+-record(c_match_battle,
+        {
+        }).
+-endif.
+
+-ifndef('S_GET_GOAL_REWARD_PB_H').
+-define('S_GET_GOAL_REWARD_PB_H', true).
+-record(s_get_goal_reward,
+        {reward_id              :: non_neg_integer(), % = 1, 32 bits
+         result                 :: non_neg_integer() % = 2, 32 bits
+        }).
+-endif.
+
 -ifndef('S_RANK_INFO_PB_H').
 -define('S_RANK_INFO_PB_H', true).
 -record(s_rank_info,
         {tag                    :: iolist(),        % = 1
-         rank_info = []         :: [#p_rank{}] | undefined % = 2
-        }).
--endif.
-
--ifndef('C_GOAL_REWARD_PB_H').
--define('C_GOAL_REWARD_PB_H', true).
--record(c_goal_reward,
-        {
+         rank_self              :: #p_rank{},       % = 2
+         rank_info = []         :: [#p_rank{}] | undefined % = 3
         }).
 -endif.
 
@@ -269,49 +318,15 @@
         }).
 -endif.
 
--ifndef('C_FRIEND_BATTLE_INVITE_PB_H').
--define('C_FRIEND_BATTLE_INVITE_PB_H', true).
--record(c_friend_battle_invite,
-        {
-        }).
--endif.
-
--ifndef('C_USE_SKILL_PB_H').
--define('C_USE_SKILL_PB_H', true).
--record(c_use_skill,
-        {skill                  :: non_neg_integer() % = 1, 32 bits
-        }).
--endif.
-
--ifndef('C_FINISH_CG_PB_H').
--define('C_FINISH_CG_PB_H', true).
--record(c_finish_cg,
-        {
-        }).
--endif.
-
--ifndef('S_USE_SKILL_PB_H').
--define('S_USE_SKILL_PB_H', true).
--record(s_use_skill,
-        {id                     :: iolist(),        % = 1
-         skill                  :: non_neg_integer() % = 2, 32 bits
-        }).
--endif.
-
--ifndef('S_LOGIN_PB_H').
--define('S_LOGIN_PB_H', true).
--record(s_login,
-        {player_id              :: iolist(),        % = 1
-         is_load_cg             :: non_neg_integer(), % = 2, 32 bits
-         is_load_tip            :: non_neg_integer() % = 3, 32 bits
-        }).
--endif.
-
--ifndef('S_FRIEND_BATTLE_INVITE_PB_H').
--define('S_FRIEND_BATTLE_INVITE_PB_H', true).
--record(s_friend_battle_invite,
-        {result                 :: non_neg_integer(), % = 1, 32 bits
-         invite_code            :: non_neg_integer() % = 2, 32 bits
+-ifndef('S_BATTLE_START_PB_H').
+-define('S_BATTLE_START_PB_H', true).
+-record(s_battle_start,
+        {target_id              :: iolist(),        % = 1
+         target_star            :: non_neg_integer(), % = 2, 32 bits
+         hp                     :: non_neg_integer(), % = 3, 32 bits
+         target_name            :: iolist(),        % = 4
+         target_head            :: iolist(),        % = 5
+         target_gender          :: iolist()         % = 6
         }).
 -endif.
 
@@ -323,23 +338,17 @@
         }).
 -endif.
 
--ifndef('C_LOGIN_PB_H').
--define('C_LOGIN_PB_H', true).
--record(c_login,
-        {player_id              :: iolist(),        % = 1
-         name                   :: iolist(),        % = 2
-         head                   :: iolist(),        % = 3
-         gender                 :: iolist(),        % = 4
-         city                   :: iolist(),        % = 5
-         province               :: iolist(),        % = 6
-         country                :: iolist()         % = 7
-        }).
--endif.
-
 -ifndef('C_GET_GOAL_REWARD_PB_H').
 -define('C_GET_GOAL_REWARD_PB_H', true).
 -record(c_get_goal_reward,
         {reward_id              :: non_neg_integer() % = 1, 32 bits
+        }).
+-endif.
+
+-ifndef('C_BUY_PI_FU_PB_H').
+-define('C_BUY_PI_FU_PB_H', true).
+-record(c_buy_pi_fu,
+        {pi_fu                  :: non_neg_integer() % = 1, 32 bits
         }).
 -endif.
 
